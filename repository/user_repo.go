@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/kliffx2/trending-repo/model"
+	"github.com/kliffx2/trending-repo/model/req"
 )
 
 type UserRepo interface {
-	SaveUser(context context.Context, user model.User) (model.User, error)
+	CheckLogin(context context.Context, loginReq req.ReqSignIn) (model.User, error)
+	SaveUser(context context.Context, user model.User) (model.User, error)	
 }

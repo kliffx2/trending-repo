@@ -2,12 +2,15 @@ package repo_impl
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/kliffx2/trending-repo/db"
 	"github.com/kliffx2/trending-repo/fault"
 	"github.com/kliffx2/trending-repo/model"
+	"github.com/kliffx2/trending-repo/model/req"
 	"github.com/kliffx2/trending-repo/repository"
+	"github.com/labstack/gommon/log"
 	"github.com/lib/pq"
 )
 
@@ -40,5 +43,19 @@ func (u UserRepoImpl) SaveUser(context context.Context, user model.User) (model.
 		return user, fault.SignUpFail
 	}
 	
+	return user, nil
+}
+
+func (u *UserRepoImpl) CheckLogin(context context.Context, loginReq req.ReqSignIn) (model.User, error)  {
+	var user = model.User{}
+
+	err := u.sql.Db.GetContext(context, &user, "SELECT * FROM users WHERE email=$1", loginReq.Email)
+	if  err != nil {
+		if  err == sql.ErrNoRows {
+			return user, fault.UserNotFound
+		}
+		log.Error(err.Error())
+		return user, err
+	}
 	return user, nil
 }

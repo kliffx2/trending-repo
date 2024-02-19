@@ -4,5 +4,6 @@ import "errors"
 
 var (
 	UserConflict = errors.New("user already exists")
+	UserNotFound = errors.New("user not found")
 	SignUpFail = errors.New("sign up failed")
 )

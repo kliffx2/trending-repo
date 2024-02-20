@@ -24,7 +24,6 @@ func main() {
 
 	e := echo.New()
 	
-
 	userHandler := handler.UserHandler{
 		UserRepo: repo_impl.NewUserRepo(sql),
 	}

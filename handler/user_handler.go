@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	validator "github.com/go-playground/validator/v10"
@@ -68,7 +69,19 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 			Data:       nil,
 		})
 	}
-	
+
+	// generate token
+	token, err := security.GenToken(user) 
+	if err != nil {
+		log.Panic(err)
+		return c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+	user.Token = token
+
 	user.Password = ""
 	return c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
@@ -117,9 +130,26 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 		})
 	}
 	
+	// generate token
+	token, err := security.GenToken(user) 
+	if err != nil {
+		log.Panic(err)
+		return c.JSON(http.StatusInternalServerError, model.Response{
+			StatusCode: http.StatusInternalServerError,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+	user.Token = token
+
+	user.Password = ""
 	return c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
 		Message: "Login successfully",
 		Data: user,
 	})
+}
+
+func (u *UserHandler) Profile(c echo.Context) error {
+	return nil
 }

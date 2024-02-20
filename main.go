@@ -1,10 +1,9 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/kliffx2/trending-repo/db"
 	"github.com/kliffx2/trending-repo/handler"
+	"github.com/kliffx2/trending-repo/helper"
 	"github.com/kliffx2/trending-repo/repository/repo_impl"
 	"github.com/kliffx2/trending-repo/router"
 	"github.com/labstack/echo/v4"
@@ -24,6 +23,11 @@ func main() {
 
 	e := echo.New()
 	
+	structValidator := helper.NewStructValidator()
+	structValidator.RegisterValidate()
+
+	e.Validator = structValidator
+
 	userHandler := handler.UserHandler{
 		UserRepo: repo_impl.NewUserRepo(sql),
 	}
@@ -37,7 +41,4 @@ func main() {
 	e.Logger.Fatal(e.Start(":3000"))
 }
 
-func welcome(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
-}
 

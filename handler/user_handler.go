@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 
-	validator "github.com/go-playground/validator/v10"
 	uuid "github.com/google/uuid"
 	"github.com/kliffx2/trending-repo/model"
 	req "github.com/kliffx2/trending-repo/model/req"
@@ -28,9 +26,8 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 		})
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil{
-		//log.Error(err.Error())
+	if err := c.Validate(req); err != nil{
+		//log.Panic(err.Error())
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message: err.Error(),
@@ -73,7 +70,7 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	// generate token
 	token, err := security.GenToken(user) 
 	if err != nil {
-		log.Panic(err)
+		//log.Panic(err)
 		return c.JSON(http.StatusInternalServerError, model.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message: err.Error(),
@@ -101,9 +98,8 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 		})
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil{
-		//log.Error(err.Error())
+	if err := c.Validate(req); err != nil{
+		//log.Panic(err.Error())
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message: err.Error(),
@@ -133,7 +129,7 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 	// generate token
 	token, err := security.GenToken(user) 
 	if err != nil {
-		log.Panic(err)
+		//log.Panic(err)
 		return c.JSON(http.StatusInternalServerError, model.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message: err.Error(),

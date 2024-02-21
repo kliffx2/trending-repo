@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/kliffx2/trending-repo/db"
 	"github.com/kliffx2/trending-repo/handler"
 	"github.com/kliffx2/trending-repo/helper"
@@ -32,13 +35,30 @@ func main() {
 		UserRepo: repo_impl.NewUserRepo(sql),
 	}
 
+	repoHandler := handler.RepoHandler{
+		GithubRepo: repo_impl.NewGithubRepo(sql),
+	}
+
 	api := router.API{
 		Echo:        e,
 		UserHandler: userHandler,
 	}
 	api.SetupRouter()
 
+	go scheduleUpdateTrending(10*time.Second, repoHandler)
+
 	e.Logger.Fatal(e.Start(":3000"))
 }
 
-
+func scheduleUpdateTrending(timeSchedule time.Duration, handler handler.RepoHandler)  {
+	ticker := time.NewTicker(timeSchedule)
+	go func() {
+		for{
+			select{
+			case <- ticker.C:
+				fmt.Println("Checking from github...")
+				helper.CrawlRepo(handler.GithubRepo)
+			}
+		}
+	}()
+}

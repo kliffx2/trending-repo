@@ -16,6 +16,14 @@ type RepoHandler struct {
 	GithubRepo repository.GithubRepo
 }
 
+// GetTrendingRepo godoc
+// @Summary get trending repos
+// @Tags repo-service
+// @Accept  json
+// @Produce  json
+// @Security jwt
+// @Success 200 {object} model.Response
+// @Router /github/trending [get]
 func (r RepoHandler) RepoTrending(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	claims := token.Claims.(*model.JwtCustomClaims)
@@ -32,6 +40,14 @@ func (r RepoHandler) RepoTrending(c echo.Context) error {
 	})
 }
 
+// SelectBookmark godoc
+// @Summary get bookmark list
+// @Tags repo-service
+// @Accept  json
+// @Produce  json
+// @Security jwt
+// @Success 200 {object} model.Response
+// @Router /bookmark/list [get]
 func (r RepoHandler) SelectBookmarks(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	claims := token.Claims.(*model.JwtCustomClaims)
@@ -51,6 +67,17 @@ func (r RepoHandler) SelectBookmarks(c echo.Context) error {
 	})
 }
 
+// Bookmark godoc
+// @Summary add bookmark 
+// @Tags repo-service
+// @Accept  json
+// @Produce  json
+// @Security jwt
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Failure 403 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /bookmark/add [post]
 func (r RepoHandler) Bookmark(c echo.Context) error {
 	req := req.ReqBookmark{}
 	if err := c.Bind(&req); err != nil {
@@ -94,11 +121,21 @@ func (r RepoHandler) Bookmark(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, model.Response{
 		StatusCode: http.StatusOK,
-		Message:    "Bookmark thành công",
+		Message:    "Bookmark successfully",
 		Data:       nil,
 	})
 }
 
+// DelBookmark godoc
+// @Summary delete bookmark 
+// @Tags repo-service
+// @Accept  json
+// @Produce  json
+// @Security jwt
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /bookmark/delete [delete]
 func (r RepoHandler) DelBookmark(c echo.Context) error {
 	req := req.ReqBookmark{}
 	if err := c.Bind(&req); err != nil {

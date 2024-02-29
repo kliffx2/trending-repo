@@ -42,7 +42,7 @@ func (g GithubRepoImpl) SaveRepo(context context.Context, repo model.GithubRepo)
 					name, description, url, color, lang, fork, stars, 
  			        stars_today, build_by, created_at, updated_at) 
           		  VALUES(
-					:name,:description, :url, :color, :lang, :fork, :stars, 
+					:name, :description, :url, :color, :lang, :fork, :stars, 
 					:stars_today, :build_by, :created_at, :updated_at
 				  )`
 

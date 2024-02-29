@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"runtime"
 	"strings"
@@ -94,7 +95,9 @@ func (rp *RepoProcess) Process() {
 		// repo not found - insert repo to database
 		fmt.Println("Add: ", rp.repo.Name)
 		_, err = rp.githubRepo.SaveRepo(context.Background(), rp.repo)
-		
+		if err != nil {
+			log.Print(err)
+		}
 		return
 	}
 
@@ -105,6 +108,8 @@ func (rp *RepoProcess) Process() {
 		fmt.Println("Updated: ", rp.repo.Name)
 		rp.repo.UpdatedAt = time.Now()
 		_, err = rp.githubRepo.UpdateRepo(context.Background(), rp.repo)
-		
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }

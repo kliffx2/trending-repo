@@ -6,7 +6,6 @@ import (
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/pkg/errors"
 )
  
@@ -29,10 +28,7 @@ func NewStructValidator() *StructValidator {
 }
 
 func (cv *StructValidator) RegisterValidate() {
-	if err := en_translations.RegisterDefaultTranslations(cv.Validator, cv.Trans); err != nil {
-		//log.Error(err.Error())
-	}
-
+	
 	cv.Validator.RegisterValidation("pwd", func(fl validator.FieldLevel) bool {
 		return len(fl.Field().String()) >= 8
 	})

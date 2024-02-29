@@ -4,8 +4,6 @@ import (
 	"sync"
 )
 
-//https://riptutorial.com/go/example/18325/job-queue-with-worker-pool
-//https://gist.github.com/harlow/dbcd639cf8d396a2ab73
 // Job - interface for job processing
 type Job interface {
 	Process()
@@ -13,7 +11,7 @@ type Job interface {
 
 // Worker - the worker threads that actually process the jobs
 type Worker struct {
-	done             sync.WaitGroup
+	done             *sync.WaitGroup
 	readyPool        chan chan Job
 	assignedJobQueue chan Job
 
@@ -25,16 +23,16 @@ type JobQueue struct {
 	internalQueue     chan Job
 	readyPool         chan chan Job
 	workers           []*Worker
-	dispatcherStopped sync.WaitGroup
-	workersStopped    sync.WaitGroup
+	dispatcherStopped *sync.WaitGroup
+	workersStopped    *sync.WaitGroup
 	quit              chan bool
 }
 
 // NewJobQueue - creates a new job queue
 func NewJobQueue(maxWorkers int) *JobQueue {
-	workersStopped := sync.WaitGroup{}
+	workersStopped := &sync.WaitGroup{}
 	readyPool := make(chan chan Job, maxWorkers)
-	workers := make([]*Worker, maxWorkers, maxWorkers)
+	workers := make([]*Worker, maxWorkers)
 	for i := 0; i < maxWorkers; i++ {
 		workers[i] = NewWorker(readyPool, workersStopped)
 	}
@@ -42,7 +40,7 @@ func NewJobQueue(maxWorkers int) *JobQueue {
 		internalQueue:     make(chan Job),
 		readyPool:         readyPool,
 		workers:           workers,
-		dispatcherStopped: sync.WaitGroup{},
+		dispatcherStopped: &sync.WaitGroup{},
 		workersStopped:    workersStopped,
 		quit:              make(chan bool),
 	}
@@ -56,7 +54,7 @@ func (q *JobQueue) Start() {
 	go q.dispatch()
 }
 
-// Stop - stops the workers and sispatcher routine
+// Stop - stops the workers and dispatcher routine
 func (q *JobQueue) Stop() {
 	q.quit <- true
 	q.dispatcherStopped.Wait()
@@ -86,7 +84,7 @@ func (q *JobQueue) Submit(job Job) {
 }
 
 // NewWorker - creates a new worker
-func NewWorker(readyPool chan chan Job, done sync.WaitGroup) *Worker {
+func NewWorker(readyPool chan chan Job, done *sync.WaitGroup) *Worker {
 	return &Worker{
 		done:             done,
 		readyPool:        readyPool,
@@ -97,8 +95,8 @@ func NewWorker(readyPool chan chan Job, done sync.WaitGroup) *Worker {
 
 // Start - begins the job processing loop for the worker
 func (w *Worker) Start() {
+	w.done.Add(1)
 	go func() {
-		w.done.Add(1)
 		for {
 			w.readyPool <- w.assignedJobQueue // check the job queue in
 			select {

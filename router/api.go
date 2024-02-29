@@ -27,8 +27,8 @@ func (api *API) SetupRouter() {
 	github.GET("/trending", api.RepoHandler.RepoTrending)
 
 	// bookmark
-	// bookmark := api.Echo.Group("/bookmark", middleware.JWTMiddleware())
-	// bookmark.GET("/list", api.RepoHandler.SelectBookmarks)
-	// bookmark.POST("/add", api.RepoHandler.Bookmark)
-	// bookmark.DELETE("/delete", api.RepoHandler.DelBookmark)
+	bookmark := api.Echo.Group("/bookmark", middleware.JWTMiddleware())
+	bookmark.GET("/list", api.RepoHandler.SelectBookmarks)
+	bookmark.POST("/add", api.RepoHandler.Bookmark)
+	bookmark.DELETE("/delete", api.RepoHandler.DelBookmark)
 }

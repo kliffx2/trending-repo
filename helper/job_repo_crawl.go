@@ -10,7 +10,6 @@ import (
 
 	"github.com/gocolly/colly"
 	"github.com/kliffx2/trending-repo/fault"
-	"github.com/kliffx2/trending-repo/log"
 	"github.com/kliffx2/trending-repo/model"
 	"github.com/kliffx2/trending-repo/repository"
 )
@@ -92,12 +91,10 @@ func (rp *RepoProcess) Process() {
 	// select repo by name
 	cacheRepo, err := rp.githubRepo.SelectRepoByName(context.Background(), rp.repo.Name)
 	if err == fault.RepoNotFound {
-		// khong tim thay repo - insert repo to database
+		// repo not found - insert repo to database
 		fmt.Println("Add: ", rp.repo.Name)
 		_, err = rp.githubRepo.SaveRepo(context.Background(), rp.repo)
-		if err != nil {
-			log.Error(err)
-		}
+		
 		return
 	}
 
@@ -108,8 +105,6 @@ func (rp *RepoProcess) Process() {
 		fmt.Println("Updated: ", rp.repo.Name)
 		rp.repo.UpdatedAt = time.Now()
 		_, err = rp.githubRepo.UpdateRepo(context.Background(), rp.repo)
-		if err != nil {
-			log.Error(err)
-		}
+		
 	}
 }

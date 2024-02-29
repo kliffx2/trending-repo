@@ -7,7 +7,6 @@ import (
 
 	"github.com/kliffx2/trending-repo/db"
 	"github.com/kliffx2/trending-repo/fault"
-	"github.com/kliffx2/trending-repo/log"
 	"github.com/kliffx2/trending-repo/model"
 	"github.com/kliffx2/trending-repo/repository"
 	"github.com/lib/pq"
@@ -32,7 +31,6 @@ func (g GithubRepoImpl) SelectRepoByName(context context.Context, name string) (
 		if err == sql.ErrNoRows {
 			return repo, fault.RepoNotFound
 		}
-		log.Error(err.Error())
 		return repo, err
 	}
 	return repo, nil
@@ -58,7 +56,6 @@ func (g GithubRepoImpl) SaveRepo(context context.Context, repo model.GithubRepo)
 				return repo, fault.RepoConflict
 			}
 		}
-		log.Error(err.Error())
 		return repo, fault.RepoInsertFail
 	}
 
@@ -82,7 +79,6 @@ func (g GithubRepoImpl) SelectRepos(context context.Context, userId string, limi
 		`, userId, limit)
 
 	if err != nil {
-		log.Error(err.Error())
 		return repos, err
 	}
 
@@ -104,13 +100,11 @@ func (g GithubRepoImpl) UpdateRepo(context context.Context, repo model.GithubRep
 
 	result, err := g.sql.Db.NamedExecContext(context, sqlStatement, repo)
 	if err != nil {
-		log.Error(err.Error())
 		return repo, err
 	}
 
 	count, err := result.RowsAffected()
 	if err != nil {
-		log.Error(err.Error())
 		return repo, fault.RepoNotUpdated
 	}
 	if count == 0 {
@@ -135,7 +129,6 @@ func (g GithubRepoImpl) SelectAllBookmarks(context context.Context, userId strin
 		if err == sql.ErrNoRows {
 			return repos, fault.BookmarkNotFound
 		}
-		log.Error(err.Error())
 		return repos, err
 	}
 	return repos, nil
@@ -157,7 +150,6 @@ func (g GithubRepoImpl) Bookmark(context context.Context, bid, nameRepo, userId 
 				return fault.BookmarkConflic
 			}
 		}
-		log.Error(err.Error())
 		return fault.BookmarkFail
 	}
 
@@ -172,9 +164,7 @@ func (g GithubRepoImpl) DelBookmark(context context.Context, nameRepo, userId st
 
 	_, err := result.RowsAffected()
 	if err != nil {
-		log.Error(err.Error())
 		return fault.DelBookmarkFail
 	}
-
 	return nil
 }

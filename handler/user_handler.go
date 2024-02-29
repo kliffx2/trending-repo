@@ -7,7 +7,7 @@ import (
 	uuid "github.com/google/uuid"
 	"github.com/kliffx2/trending-repo/fault"
 	"github.com/kliffx2/trending-repo/model"
-	req "github.com/kliffx2/trending-repo/model/req"
+	"github.com/kliffx2/trending-repo/model/req"
 	"github.com/kliffx2/trending-repo/repository"
 	"github.com/kliffx2/trending-repo/security"
 	"github.com/labstack/echo/v4"
@@ -17,10 +17,20 @@ type UserHandler struct{
 	UserRepo repository.UserRepo
 }
 
+// SignUp godoc
+// @Summary Create new account
+// @Tags user-service
+// @Accept  json
+// @Produce  json
+// @Param data body req.ReqSignUp true "user"
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Failure 404 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /user/sign-up [post]
 func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	req := req.ReqSignUp{}
 	if err := c.Bind(&req); err != nil{
-		//log.Error(err.Error())
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message: err.Error(),
@@ -29,7 +39,6 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	}
 
 	if err := c.Validate(req); err != nil{
-		//log.Panic(err.Error())
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message: err.Error(),
@@ -42,7 +51,6 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 
 	userId, err := uuid.NewUUID()
 	if err != nil {
-		//log.Error(err.Error())
 		return c.JSON(http.StatusForbidden, model.Response{
 			StatusCode: http.StatusForbidden,
 			Message: err.Error(),
@@ -56,7 +64,6 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 		Email:     req.Email,
 		Password:  hash,
 		Role:      role,
-		
 		Token:     "",
 	}
 
@@ -72,7 +79,6 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	// generate token
 	token, err := security.GenToken(user) 
 	if err != nil {
-		//log.Panic(err)
 		return c.JSON(http.StatusInternalServerError, model.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message: err.Error(),
@@ -89,10 +95,19 @@ func (u *UserHandler) HandleSignUp(c echo.Context) error {
 	})
 }
 
+// SignIn godoc
+// @Summary Sign in to access your account
+// @Tags user-service
+// @Accept  json
+// @Produce  json
+// @Param data body req.ReqSignIn true "user"
+// @Success 200 {object} model.Response
+// @Failure 400 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /user/sign-in [post]
 func (u *UserHandler) HandleSignIn(c echo.Context) error {
 	req := req.ReqSignIn{}
 	if err := c.Bind(&req); err != nil{
-		//log.Error(err.Error())
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message: err.Error(),
@@ -101,7 +116,6 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 	}
 
 	if err := c.Validate(req); err != nil{
-		//log.Panic(err.Error())
 		return c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: http.StatusBadRequest,
 			Message: err.Error(),
@@ -131,7 +145,6 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 	// generate token
 	token, err := security.GenToken(user) 
 	if err != nil {
-		//log.Panic(err)
 		return c.JSON(http.StatusInternalServerError, model.Response{
 			StatusCode: http.StatusInternalServerError,
 			Message: err.Error(),
@@ -148,6 +161,15 @@ func (u *UserHandler) HandleSignIn(c echo.Context) error {
 	})
 }
 
+// Profile godoc
+// @Summary get user profile
+// @Tags user-service
+// @Accept  json
+// @Produce  json
+// @Security jwt
+// @Success 200 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /user/profile [get]
 func (u *UserHandler) Profile(c echo.Context) error {
 	tokenData := c.Get("user").(*jwt.Token)
 	claims := tokenData.Claims.(*model.JwtCustomClaims)
@@ -175,6 +197,16 @@ func (u *UserHandler) Profile(c echo.Context) error {
 	})
 }
 
+// UpdateProfile godoc
+// @Summary get user profile
+// @Tags user-service
+// @Accept  json
+// @Produce  json
+// @Param data body req.ReqUpdateUser true "user"
+// @Security jwt
+// @Success 200 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /user/profile/update [put]
 func (u UserHandler) UpdateProfile(c echo.Context) error {
 	req := req.ReqUpdateUser{}
 	if err := c.Bind(&req); err != nil {

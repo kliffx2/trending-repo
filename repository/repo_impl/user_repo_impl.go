@@ -10,7 +10,6 @@ import (
 	"github.com/kliffx2/trending-repo/model"
 	"github.com/kliffx2/trending-repo/model/req"
 	"github.com/kliffx2/trending-repo/repository"
-	"github.com/labstack/gommon/log"
 	"github.com/lib/pq"
 )
 
@@ -34,7 +33,6 @@ func (u UserRepoImpl) SaveUser(context context.Context, user model.User) (model.
 
 	_, err := u.sql.Db.NamedExecContext(context, statement, user)
 	if err != nil {
-		//log.Error(err.Error())
 		if err, ok := err.(*pq.Error); ok{
 			if err.Code.Name() == "unique_violation" {
 				return user, fault.UserConflict
@@ -54,7 +52,6 @@ func (u *UserRepoImpl) CheckLogin(context context.Context, loginReq req.ReqSignI
 		if  err == sql.ErrNoRows {
 			return user, fault.UserNotFound
 		}
-		log.Error(err.Error())
 		return user, err
 	}
 	return user, nil
@@ -64,7 +61,7 @@ func (u *UserRepoImpl) SelectUserById(context context.Context, userId string) (m
 	var user model.User
 
 	err := u.sql.Db.GetContext(context, &user,
-		"SELECT * FROM users WHERE user_if = $1", userId)
+		"SELECT * FROM users WHERE user_id = $1", userId)
 	
 	if err != nil {
 		if err == sql.ErrNoRows{
@@ -90,13 +87,11 @@ func (u UserRepoImpl) UpdateUser(context context.Context, user model.User) (mode
 
 	result, err := u.sql.Db.NamedExecContext(context, sqlStatement, user)
 	if err != nil {
-		log.Error(err.Error())
 		return user, err
 	}
 
 	count, err := result.RowsAffected()
 	if err != nil {
-		log.Error(err.Error())
 		return user, fault.UserNotUpdated
 	}
 	if count == 0 {

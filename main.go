@@ -5,12 +5,32 @@ import (
 	"time"
 
 	"github.com/kliffx2/trending-repo/db"
+	_ "github.com/kliffx2/trending-repo/docs"
 	"github.com/kliffx2/trending-repo/handler"
 	"github.com/kliffx2/trending-repo/helper"
 	"github.com/kliffx2/trending-repo/repository/repo_impl"
 	"github.com/kliffx2/trending-repo/router"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
+
+// @title Github Trending API
+// @version 1.0
+// @description More
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @securityDefinitions.apikey jwt
+// @in header
+// @name Authorization
+
+// @host localhost:3000
+// @BasePath /
 
 func main() {
 
@@ -25,6 +45,7 @@ func main() {
 	defer sql.Close()
 
 	e := echo.New()
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	
 	structValidator := helper.NewStructValidator()
 	structValidator.RegisterValidate()
@@ -42,10 +63,11 @@ func main() {
 	api := router.API{
 		Echo:        e,
 		UserHandler: userHandler,
+		RepoHandler: repoHandler,
 	}
 	api.SetupRouter()
 
-	go scheduleUpdateTrending(10*time.Second, repoHandler)
+	go scheduleUpdateTrending(360*time.Second, repoHandler)
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
@@ -53,12 +75,10 @@ func main() {
 func scheduleUpdateTrending(timeSchedule time.Duration, handler handler.RepoHandler)  {
 	ticker := time.NewTicker(timeSchedule)
 	go func() {
-		for{
-			select{
-			case <- ticker.C:
-				fmt.Println("Checking from github...")
-				helper.CrawlRepo(handler.GithubRepo)
-			}
+		for range ticker.C {
+			fmt.Println("Checking from github...")
+			helper.CrawlRepo(handler.GithubRepo)
 		}
 	}()
+	
 }

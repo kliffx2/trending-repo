@@ -36,6 +36,11 @@ Go to the project directory
 
 ```bash
   cd trending-repo
+```
+
+Run the project
+
+```bash
   make pro
 ```
 

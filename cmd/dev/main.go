@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/kliffx2/trending-repo/db"
@@ -13,6 +14,11 @@ import (
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
+
+func init() {
+	fmt.Println("DEV ENVIROMENT")
+	os.Setenv("APP_NAME", "github")
+}
 
 // @title Github Trending API
 // @version 1.0
